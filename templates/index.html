@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMRIT QUERY-BOT</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+    
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            background: linear-gradient(135deg, #000000, #2e2e2e);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    
+        .chat-container {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            /* border-radius: 20px; */
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+    
+        .header {
+            /* background: rgba(0, 0, 0, 0.15); */
+            padding: 15px 20px;
+            text-align: center;
+            color: white;
+            font-size: 1.3em;
+            font-weight: 500;
+            letter-spacing: 1px;
+            /* backdrop-filter: blur(10px); */
+            /* border-bottom: 1px solid rgba(255, 255, 255, 0.1); */
+        }
+
+        .header {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #f1f1f1;
+        }
+
+    
+        #chat-box {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+    
+        .user-message,
+        .bot-message {
+            padding: 14px 20px;
+            border-radius: 20px;
+            max-width: 70%;
+            animation: fadeIn 0.3s ease;
+        }
+    
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+        }
+    
+        .bot-message {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    
+        .input-container {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    
+        #user-input {
+            flex: 1;
+            padding: 14px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(5px);
+            margin-right: 10px;
+        }
+    
+        #user-input::placeholder {
+            color: #ddd;
+        }
+    
+        button {
+            background: #00c6ff;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+    
+        button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
+        }
+    
+        .typing-indicator {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 1.2em;
+            color: #ccc;
+        }
+    
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ccc;
+            border-radius: 50%;
+            margin-right: 3px;
+            display: inline-block;
+            animation: typing 1s infinite alternate;
+        }
+    
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+    
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+    
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    
+        @keyframes typing {
+            from {
+                opacity: 0.5;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(-3px);
+            }
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header">
+            <h1>CMRIT Query Assistant</h1>
+        </div>
+        <div id="chat-box">
+            
+        </div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Questions here...">
+            <button onclick="sendMessage()">Ask</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById("chat-box");
+        const userInput = document.getElementById("user-input");
+        let typingIndicatorElement = null; // To keep track of the typing indicator
+
+        function displayUserMessage(message) {
+            chatBox.innerHTML += `<div class="user-message">${message}</div>`;
+            scrollToBottom();
+        }
+
+        function displayBotTyping() {
+            typingIndicatorElement = document.createElement('div');
+            typingIndicatorElement.classList.add('bot-message');
+            typingIndicatorElement.id = 'typing';
+            typingIndicatorElement.innerHTML = `
+                <span class="typing-indicator">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                </span>
+            `;
+            chatBox.appendChild(typingIndicatorElement);
+            scrollToBottom();
+        }
+
+        function displayBotMessage(message) {
+            if (typingIndicatorElement) {
+                let index = 0;
+                typingIndicatorElement.innerHTML = ''; // Clear the typing indicator
+
+                function typeWriter() {
+                    if (index < message.length) {
+                        typingIndicatorElement.innerHTML += message.charAt(index);
+                        index++;
+                        setTimeout(typeWriter, 30);
+                    } else {
+                        typingIndicatorElement = null; // Reset the reference
+                    }
+                    scrollToBottom();
+                }
+                typeWriter();
+            } else {
+                // Fallback in case typing indicator wasn't present (shouldn't happen with this logic)
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.classList.add('bot-message');
+                botMessageDiv.textContent = message;
+                chatBox.appendChild(botMessageDiv);
+                scrollToBottom();
+            }
+        }
+
+        function scrollToBottom() {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            displayUserMessage(message);
+            userInput.value = "";
+
+            displayBotTyping();
+
+            try {
+                // Simulate an API call with a delay to show typing effect
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: message })
+                });
+                const data = await response.json();
+
+                if (data.error) {
+                    displayBotMessage(`Error: ${data.error}`);
+                } else {
+                    displayBotMessage(data.response);
+                }
+            } catch (error) {
+                displayBotMessage("Error: Could not connect to the server.");
+            }
+        }
+
+        // Allow sending message with Enter key
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        // Initial bot greeting with typing animation
+        displayBotTyping();
+        setTimeout(() => {
+            displayBotMessage("Hello! How can I assist you today?");
+        }, 1000);
+    </script>
+</body>
+</html>
