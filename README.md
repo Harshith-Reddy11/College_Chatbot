@@ -1,4 +1,9 @@
-# 💬 College Chatbot
+# 💬 College Chatbot 
+
+![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)
+![Flask](https://img.shields.io/badge/Flask-2.3-lightgrey?logo=flask)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 
 A smart, AI-powered chatbot built using **Flask** and the **Gemini API** (by Google), designed to assist students with college-related queries in real-time.
 
