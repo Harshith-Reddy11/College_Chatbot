@@ -26,3 +26,39 @@ A smart, AI-powered chatbot built using **Flask** and the **Gemini API** (by Goo
 
 ## 📂 Project Structure
 
+College_chatbot/
+│
+├── app.py # Flask application
+├── templates/ # HTML files
+│ └── index.html
+├── static/ # CSS, JS files
+├── .env # Your API key (not pushed to GitHub)
+├── .env.example # Sample env file for setup
+├── .gitignore
+└── README.md # Project documentation
+
+---
+
+🙌 Acknowledgements
+  
+  Google Gemini API
+
+  Flask Framework
+
+  python-dotenv
+
+---
+
+📌 License
+
+    This project is licensed for personal and educational use. Contact for other usage.
+
+---
+
+✨ Author
+
+Harshith Reddy Rajalingari.
+Made with ❤️ using AI and Flask.
+
+
+
